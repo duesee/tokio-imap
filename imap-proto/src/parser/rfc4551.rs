@@ -5,10 +5,7 @@
 //! or Quick Flag Changes Resynchronization
 //!
 
-use crate::{
-    parser::core::number_64,
-    types::*,
-};
+use crate::{parser::core::number_64, types::*};
 
 // The highest mod-sequence value of all messages in the mailbox.
 // Extends resp-test-code defined in rfc3501.

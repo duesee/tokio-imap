@@ -1,7 +1,4 @@
-use crate::{
-    parser::core::*,
-    types::*,
-};
+use crate::{parser::core::*, types::*};
 
 #[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub section_part<Vec<u32>>, do_parse!(
