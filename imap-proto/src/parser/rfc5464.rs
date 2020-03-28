@@ -4,9 +4,6 @@
 //! IMAP METADATA extension
 //!
 
-// rustfmt doesn't do a very good job on nom parser invocations.
-#![cfg_attr(rustfmt, rustfmt_skip)]
-
 use nom::IResult;
 
 use crate::{
@@ -123,16 +120,19 @@ fn slice_to_str(i: &[u8]) -> &str {
     str::from_utf8(i).unwrap()
 }
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(nil_value<Option<String>>, do_parse!(
     tag_no_case!("NIL") >>
         (None)
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(string_value<Option<String>>, do_parse!(
     value: map!(alt!(quoted | literal), slice_to_str) >>
         (Some(value.to_string()))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(keyval_list<Vec<Metadata>>, do_parse!(
     list: parenthesized_nonempty_list!(do_parse!(
         key: map!(entry_name, slice_to_str) >>
@@ -143,11 +143,13 @@ named!(keyval_list<Vec<Metadata>>, do_parse!(
         (list)
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(entry_list<Vec<&str>>, do_parse!(
     list: separated_list!(tag!(" "), map!(entry_name, slice_to_str)) >>
         (list)
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(metadata_common<&[u8]>, do_parse!(
     tag_no_case!("METADATA ") >>
         mbox: quoted >>
@@ -156,6 +158,7 @@ named!(metadata_common<&[u8]>, do_parse!(
 ));
 
 // [RFC5464 - 4.4.1 METADATA Response with values]
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(metadata_solicited<Response>, do_parse!(
     mbox: metadata_common >>
     tail: keyval_list >>
@@ -165,6 +168,7 @@ named!(metadata_solicited<Response>, do_parse!(
 ));
 
 // [RFC5464 - 4.4.2 Unsolicited METADATA Response without values]
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(metadata_unsolicited<Response>, do_parse!(
     mbox: metadata_common >>
         tail: entry_list >>
@@ -174,6 +178,7 @@ named!(metadata_unsolicited<Response>, do_parse!(
 ));
 
 // Parse solicited or unsolicited METADATA response.
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub resp_metadata<Response>, do_parse!(
     r: alt!(metadata_solicited |
             metadata_unsolicited) >>

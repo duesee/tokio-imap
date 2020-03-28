@@ -13,20 +13,25 @@ use std::str;
 // number          = 1*DIGIT
 //                    ; Unsigned 32-bit integer
 //                    ; (0 <= n < 4,294,967,296)
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub number<u32>, flat_map!(digit1, parse_to!(u32)));
 
 // same as `number` but 64-bit
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub number_64<u64>, flat_map!(digit1, parse_to!(u64)));
 
 // ----- string -----
 
 // string = quoted / literal
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub string<&[u8]>, alt!(quoted | literal));
 
 // string bytes as utf8
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub string_utf8<&str>, map_res!(string, str::from_utf8));
 
 // quoted = DQUOTE *QUOTED-CHAR DQUOTE
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub quoted<&[u8]>, delimited!(
     char!('"'),
     quoted_data,
@@ -34,6 +39,7 @@ named!(pub quoted<&[u8]>, delimited!(
 ));
 
 // quoted bytes as utf8
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub quoted_utf8<&str>, map_res!(quoted, str::from_utf8));
 
 // QUOTED-CHAR = <any TEXT-CHAR except quoted-specials> / "\" quoted-specials
@@ -86,12 +92,14 @@ pub fn is_char8(i: u8) -> bool {
 // ----- astring ----- atom (roughly) or string
 
 // astring = 1*ASTRING-CHAR / string
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub astring<&[u8]>, alt!(
     take_while1!(is_astring_char) |
     string
 ));
 
 // astring bytes as utf8
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub astring_utf8<&str>, map_res!(astring, str::from_utf8));
 
 // ASTRING-CHAR = ATOM-CHAR / resp-specials
@@ -122,6 +130,7 @@ pub fn is_resp_specials(c: u8) -> bool {
 }
 
 // atom = 1*ATOM-CHAR
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub atom<&str>, map_res!(take_while1!(is_atom_char),
     str::from_utf8
 ));
@@ -129,23 +138,27 @@ named!(pub atom<&str>, map_res!(take_while1!(is_atom_char),
 // ----- nstring ----- nil or string
 
 // nstring = string / nil
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub nstring<Option<&[u8]>>, alt!(
     map!(nil, |_| None) |
     map!(string, |s| Some(s))
 ));
 
 // nstring bytes as utf8
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub nstring_utf8<Option<&str>>, alt!(
     map!(nil, |_| None) |
     map!(string_utf8, |s| Some(s))
 ));
 
 // nil = "NIL"
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub nil, tag_no_case!("NIL"));
 
 // ----- text -----
 
 // text = 1*TEXT-CHAR
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub text<&str>, map_res!(take_while!(is_text_char),
     str::from_utf8
 ));

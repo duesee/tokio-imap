@@ -3,6 +3,7 @@ use crate::{
     types::*,
 };
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub section_part<Vec<u32>>, do_parse!(
     part: number >>
     rest: many0!(do_parse!(
@@ -16,6 +17,7 @@ named!(pub section_part<Vec<u32>>, do_parse!(
     })
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub section_msgtext<MessageSection>, alt!(
     do_parse!(
         tag_no_case!("HEADER.FIELDS") >>
@@ -27,11 +29,13 @@ named!(pub section_msgtext<MessageSection>, alt!(
     do_parse!(tag_no_case!("TEXT") >> (MessageSection::Text))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub section_text<MessageSection>, alt!(
     section_msgtext |
     do_parse!(tag_no_case!("MIME") >> (MessageSection::Mime))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub section_spec<SectionPath>, alt!(
     map!(section_msgtext, |val| SectionPath::Full(val)) |
     do_parse!(
@@ -45,6 +49,7 @@ named!(pub section_spec<SectionPath>, alt!(
     )
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub section<Option<SectionPath>>, do_parse!(
     tag!("[") >>
     spec: opt!(section_spec) >>
@@ -52,6 +57,7 @@ named!(pub section<Option<SectionPath>>, do_parse!(
     (spec)
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub msg_att_body_section<AttributeValue>, do_parse!(
     tag_no_case!("BODY") >>
     section: section >>

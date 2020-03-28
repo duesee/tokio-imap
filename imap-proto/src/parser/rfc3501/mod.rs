@@ -4,9 +4,6 @@
 //! INTERNET MESSAGE ACCESS PROTOCOL
 //!
 
-// rustfmt doesn't do a very good job on nom parser invocations.
-#![cfg_attr(rustfmt, rustfmt_skip)]
-
 use std::str;
 
 use crate::{
@@ -28,22 +25,28 @@ fn is_tag_char(c: u8) -> bool {
     c != b'+' && is_astring_char(c)
 }
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(status_ok<Status>, map!(tag_no_case!("OK"),
     |_s| Status::Ok
 ));
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(status_no<Status>, map!(tag_no_case!("NO"),
     |_s| Status::No
 ));
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(status_bad<Status>, map!(tag_no_case!("BAD"),
     |_s| Status::Bad
 ));
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(status_preauth<Status>, map!(tag_no_case!("PREAUTH"),
     |_s| Status::PreAuth
 ));
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(status_bye<Status>, map!(tag_no_case!("BYE"),
     |_s| Status::Bye
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(status<Status>, alt!(
     status_ok |
     status_no |
@@ -52,6 +55,7 @@ named!(status<Status>, alt!(
     status_bye
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(mailbox<&str>, map!(
     astring_utf8,
     |s| {
@@ -63,25 +67,31 @@ named!(mailbox<&str>, map!(
     }
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(flag_extension<&str>, map_res!(
     recognize!(pair!(tag!("\\"), take_while!(is_atom_char))),
     str::from_utf8
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(flag<&str>, alt!(flag_extension | atom));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(flag_list<Vec<&str>>, parenthesized_list!(flag));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(flag_perm<&str>, alt!(
     map_res!(tag!("\\*"), str::from_utf8) |
     flag
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(resp_text_code_alert<ResponseCode>, do_parse!(
     tag_no_case!("ALERT") >>
     (ResponseCode::Alert)
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(resp_text_code_badcharset<ResponseCode>, do_parse!(
     tag_no_case!("BADCHARSET") >>
     ch: opt!(do_parse!(
@@ -92,55 +102,65 @@ named!(resp_text_code_badcharset<ResponseCode>, do_parse!(
     (ResponseCode::BadCharset(ch))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(resp_text_code_capability<ResponseCode>, map!(
     capability_data,
     |c| ResponseCode::Capabilities(c)
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(resp_text_code_parse<ResponseCode>, do_parse!(
     tag_no_case!("PARSE") >>
     (ResponseCode::Parse)
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(resp_text_code_permanent_flags<ResponseCode>, do_parse!(
     tag_no_case!("PERMANENTFLAGS ") >>
     flags: parenthesized_list!(flag_perm) >>
     (ResponseCode::PermanentFlags(flags))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(resp_text_code_read_only<ResponseCode>, do_parse!(
     tag_no_case!("READ-ONLY") >>
     (ResponseCode::ReadOnly)
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(resp_text_code_read_write<ResponseCode>, do_parse!(
     tag_no_case!("READ-WRITE") >>
     (ResponseCode::ReadWrite)
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(resp_text_code_try_create<ResponseCode>, do_parse!(
     tag_no_case!("TRYCREATE") >>
     (ResponseCode::TryCreate)
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(resp_text_code_uid_validity<ResponseCode>, do_parse!(
     tag_no_case!("UIDVALIDITY ") >>
     num: number >>
     (ResponseCode::UidValidity(num))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(resp_text_code_uid_next<ResponseCode>, do_parse!(
     tag_no_case!("UIDNEXT ") >>
     num: number >>
     (ResponseCode::UidNext(num))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(resp_text_code_unseen<ResponseCode>, do_parse!(
     tag_no_case!("UNSEEN ") >>
     num: number >>
     (ResponseCode::Unseen(num))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(resp_text_code<ResponseCode>, do_parse!(
     tag!("[") >>
     coded: alt!(
@@ -163,6 +183,7 @@ named!(resp_text_code<ResponseCode>, do_parse!(
     (coded)
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(capability<Capability>, alt!(
     map!(tag_no_case!("IMAP4rev1"), |_| Capability::Imap4rev1) |
     map!(preceded!(tag_no_case!("AUTH="), atom), |a| Capability::Auth(a)) |
@@ -177,6 +198,7 @@ fn ensure_capabilities_contains_imap4rev<'a>(capabilities: Vec<Capability<'a>>) 
     }
 }
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(capability_data<Vec<Capability>>, map_res!(
     do_parse!(
         tag_no_case!("CAPABILITY") >>
@@ -186,11 +208,13 @@ named!(capability_data<Vec<Capability>>, map_res!(
     ensure_capabilities_contains_imap4rev
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(resp_capability<Response>, map!(
     capability_data,
     |c| Response::Capabilities(c)
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(mailbox_data_search<Response>, do_parse!(
     tag_no_case!("SEARCH") >>
     ids: many0!(do_parse!(
@@ -201,18 +225,21 @@ named!(mailbox_data_search<Response>, do_parse!(
     (Response::IDs(ids))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(mailbox_data_flags<Response>, do_parse!(
     tag_no_case!("FLAGS ") >>
     flags: flag_list >>
     (Response::MailboxData(MailboxDatum::Flags(flags)))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(mailbox_data_exists<Response>, do_parse!(
     num: number >>
     tag_no_case!(" EXISTS") >>
     (Response::MailboxData(MailboxDatum::Exists(num)))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(mailbox_list<(Vec<&str>, Option<&str>, &str)>, do_parse!(
     flags: flag_list >>
     tag!(" ") >>
@@ -225,6 +252,7 @@ named!(mailbox_list<(Vec<&str>, Option<&str>, &str)>, do_parse!(
     ((flags, delimiter, name))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(mailbox_data_list<Response>, do_parse!(
     tag_no_case!("LIST ") >>
     data: mailbox_list >>
@@ -235,6 +263,7 @@ named!(mailbox_data_list<Response>, do_parse!(
     }))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(mailbox_data_lsub<Response>, do_parse!(
     tag_no_case!("LSUB ") >>
     data: mailbox_list >>
@@ -247,6 +276,7 @@ named!(mailbox_data_lsub<Response>, do_parse!(
 
 // Unlike `status_att` in the RFC syntax, this includes the value,
 // so that it can return a valid enum object instead of just a key.
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(status_att<StatusAttribute>, alt!(
     rfc4551::status_att_val_highest_mod_seq |
     do_parse!(
@@ -276,8 +306,10 @@ named!(status_att<StatusAttribute>, alt!(
     )
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(status_att_list<Vec<StatusAttribute>>, parenthesized_nonempty_list!(status_att));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(mailbox_data_status<Response>, do_parse!(
     tag_no_case!("STATUS ") >>
     mailbox: mailbox >>
@@ -289,12 +321,14 @@ named!(mailbox_data_status<Response>, do_parse!(
     }))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(mailbox_data_recent<Response>, do_parse!(
     num: number >>
     tag_no_case!(" RECENT") >>
     (Response::MailboxData(MailboxDatum::Recent(num)))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(mailbox_data<Response>, alt!(
     mailbox_data_flags |
     mailbox_data_exists |
@@ -307,6 +341,7 @@ named!(mailbox_data<Response>, alt!(
 
 // An address structure is a parenthesized list that describes an
 // electronic mail address.
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(address<Address>, paren_delimited!(
     do_parse!(
         name: nstring >>
@@ -325,6 +360,7 @@ named!(address<Address>, paren_delimited!(
     )
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(opt_addresses<Option<Vec<Address>>>, alt!(
     map!(nil, |_s| None) |
     map!(paren_delimited!(
@@ -336,6 +372,7 @@ named!(opt_addresses<Option<Vec<Address>>>, alt!(
     ), |v| Some(v))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub(crate) envelope<Envelope>, paren_delimited!(
     do_parse!(
         date: nstring >>
@@ -372,30 +409,35 @@ named!(pub(crate) envelope<Envelope>, paren_delimited!(
     )
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(msg_att_envelope<AttributeValue>, do_parse!(
     tag_no_case!("ENVELOPE ") >>
     envelope: envelope >>
     (AttributeValue::Envelope(Box::new(envelope)))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(msg_att_internal_date<AttributeValue>, do_parse!(
     tag_no_case!("INTERNALDATE ") >>
     date: nstring_utf8 >>
     (AttributeValue::InternalDate(date.unwrap()))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(msg_att_flags<AttributeValue>, do_parse!(
     tag_no_case!("FLAGS ") >>
     flags: flag_list >>
     (AttributeValue::Flags(flags))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(msg_att_rfc822<AttributeValue>, do_parse!(
     tag_no_case!("RFC822 ") >>
     raw: nstring >>
     (AttributeValue::Rfc822(raw))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(msg_att_rfc822_header<AttributeValue>, do_parse!(
     tag_no_case!("RFC822.HEADER ") >>
     opt!(tag!(" ")) >> // extra space workaround for DavMail
@@ -403,24 +445,28 @@ named!(msg_att_rfc822_header<AttributeValue>, do_parse!(
     (AttributeValue::Rfc822Header(raw))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(msg_att_rfc822_size<AttributeValue>, do_parse!(
     tag_no_case!("RFC822.SIZE ") >>
     num: number >>
     (AttributeValue::Rfc822Size(num))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(msg_att_rfc822_text<AttributeValue>, do_parse!(
     tag_no_case!("RFC822.TEXT ") >>
     raw: nstring >>
     (AttributeValue::Rfc822Text(raw))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(msg_att_uid<AttributeValue>, do_parse!(
     tag_no_case!("UID ") >>
     num: number >>
     (AttributeValue::Uid(num))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(msg_att<AttributeValue>, alt!(
     msg_att_body_section |
     msg_att_body_structure |
@@ -435,8 +481,10 @@ named!(msg_att<AttributeValue>, alt!(
     msg_att_uid
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(msg_att_list<Vec<AttributeValue>>, parenthesized_nonempty_list!(msg_att));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(message_data_fetch<Response>, do_parse!(
     num: number >>
     tag_no_case!(" FETCH ") >>
@@ -444,12 +492,14 @@ named!(message_data_fetch<Response>, do_parse!(
     (Response::Fetch(num, attrs))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(message_data_expunge<Response>, do_parse!(
     num: number >>
     tag_no_case!(" EXPUNGE") >>
     (Response::Expunge(num))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(tag<RequestId>, map!(
     map_res!(take_while1!(is_tag_char), str::from_utf8),
     |s| RequestId(s.to_string())
@@ -459,6 +509,7 @@ named!(tag<RequestId>, map!(
 //     ["[" resp-text-code "]" SP] text
 // However, examples in RFC 4551 (Conditional STORE) counteract this by giving
 // examples of `resp-text` that do not include the trailing space and text.
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(resp_text<(Option<ResponseCode>, Option<&str>)>, do_parse!(
     code: opt!(resp_text_code) >>
     text: text >>
@@ -474,6 +525,7 @@ named!(resp_text<(Option<ResponseCode>, Option<&str>)>, do_parse!(
     })
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(continue_req<Response>, do_parse!(
     tag!("+") >>
     opt!(tag!(" ")) >> // Some servers do not send the space :/
@@ -485,6 +537,7 @@ named!(continue_req<Response>, do_parse!(
     })
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(response_tagged<Response>, do_parse!(
     tag: tag >>
     tag!(" ") >>
@@ -500,6 +553,7 @@ named!(response_tagged<Response>, do_parse!(
     })
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(resp_cond<Response>, do_parse!(
     status: status >>
     tag!(" ") >>
@@ -511,6 +565,7 @@ named!(resp_cond<Response>, do_parse!(
     })
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(response_data<Response>, do_parse!(
     tag!("* ") >>
     contents: alt!(
@@ -525,6 +580,7 @@ named!(response_data<Response>, do_parse!(
     (contents)
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(response<Response>, alt!(
     continue_req |
     response_data |

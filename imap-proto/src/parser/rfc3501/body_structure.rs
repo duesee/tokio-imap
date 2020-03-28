@@ -1,6 +1,3 @@
-// rustfmt doesn't do a very good job on nom parser invocations.
-#![cfg_attr(rustfmt, rustfmt_skip)]
-
 use crate::{
     parser::{
         core::*,
@@ -11,6 +8,7 @@ use crate::{
 
 // body-fields     = body-fld-param SP body-fld-id SP body-fld-desc SP
 //                   body-fld-enc SP body-fld-octets
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(body_fields<BodyFields>, do_parse!(
     param: body_param >>
     tag!(" ") >>
@@ -32,6 +30,7 @@ named!(body_fields<BodyFields>, do_parse!(
 //                   [SP body-fld-loc *(SP body-extension)]]]
 //                     ; MUST NOT be returned on non-extensible
 //                     ; "BODY" fetch
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(body_ext_1part<BodyExt1Part>, do_parse!(
     // Per RFC 1864, MD5 values are base64-encoded
     md5: opt_opt!(preceded!(tag!(" "), nstring_utf8)) >>
@@ -47,6 +46,7 @@ named!(body_ext_1part<BodyExt1Part>, do_parse!(
 //                   [SP body-fld-loc *(SP body-extension)]]]
 //                     ; MUST NOT be returned on non-extensible
 //                     ; "BODY" fetch
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(body_ext_mpart<BodyExtMPart>, do_parse!(
     param: opt_opt!(preceded!(tag!(" "), body_param)) >>
     disposition: opt_opt!(preceded!(tag!(" "), body_disposition)) >>
@@ -57,6 +57,7 @@ named!(body_ext_mpart<BodyExtMPart>, do_parse!(
     (BodyExtMPart { param, disposition, language, location, extension })
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(body_encoding<ContentEncoding>, alt!(
     delimited!(char!('"'), alt!(
         map!(tag_no_case!("7BIT"), |_| ContentEncoding::SevenBit) |
@@ -68,12 +69,14 @@ named!(body_encoding<ContentEncoding>, alt!(
     map!(string_utf8, |enc| ContentEncoding::Other(enc))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(body_lang<Option<Vec<&str>>>, alt!(
     // body language seems to refer to RFC 3066 language tags, which should be ASCII-only
     map!(nstring_utf8, |v| v.map(|s| vec![s])) |
     map!(parenthesized_nonempty_list!(string_utf8), Option::from)
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(body_param<BodyParams>, alt!(
     map!(nil, |_| None) |
     map!(parenthesized_nonempty_list!(do_parse!(
@@ -84,6 +87,7 @@ named!(body_param<BodyParams>, alt!(
     )), Option::from)
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(body_extension<BodyExtension>, alt!(
     map!(number, |n| BodyExtension::Num(n)) |
     // Cannot find documentation on character encoding for body extension values.
@@ -92,6 +96,7 @@ named!(body_extension<BodyExtension>, alt!(
     map!(parenthesized_nonempty_list!(body_extension), |ext| BodyExtension::List(ext))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(body_disposition<Option<ContentDisposition>>, alt!(
     map!(nil, |_| None) |
     paren_delimited!(do_parse!(
@@ -105,6 +110,7 @@ named!(body_disposition<Option<ContentDisposition>>, alt!(
     ))
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(body_type_basic<BodyStructure>, do_parse!(
     media_type: string_utf8 >>
     tag!(" ") >>
@@ -134,6 +140,7 @@ named!(body_type_basic<BodyStructure>, do_parse!(
     })
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(body_type_text<BodyStructure>, do_parse!(
     tag_no_case!("\"TEXT\"") >>
     tag!(" ") >>
@@ -166,6 +173,7 @@ named!(body_type_text<BodyStructure>, do_parse!(
     })
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(body_type_message<BodyStructure>, do_parse!(
     tag_no_case!("\"MESSAGE\" \"RFC822\"") >>
     tag!(" ") >>
@@ -202,6 +210,7 @@ named!(body_type_message<BodyStructure>, do_parse!(
     })
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(body_type_multipart<BodyStructure>, do_parse!(
     bodies: many1!(body) >>
     tag!(" ") >>
@@ -223,10 +232,12 @@ named!(body_type_multipart<BodyStructure>, do_parse!(
     })
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub(crate) body<BodyStructure>, paren_delimited!(
     alt!(body_type_text | body_type_message | body_type_basic | body_type_multipart)
 ));
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(pub(crate) msg_att_body_structure<AttributeValue>, do_parse!(
     tag_no_case!("BODYSTRUCTURE ") >>
     body: body >>
