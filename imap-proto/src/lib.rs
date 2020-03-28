@@ -9,7 +9,7 @@ extern crate assert_matches;
 mod macros;
 
 pub mod builders;
-mod parser;
+pub mod parser;
 pub mod types;
 
 pub use crate::parser::{body, body_structure, core, parse_response, resp_metadata, ParseResult};
